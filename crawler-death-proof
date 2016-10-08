@@ -1,51 +1,156 @@
-#!/bin/sh
+#!/bin/bash
+# Crawler-Death-Proof-install.sh
+#
+# Versão 1: Erick Formaggio
+# Versão 1.1: Erick Formaggio
+# Versão 1.2: Erick Formaggio
+# Versão 1.3: GreenMind Growbr.org
+#
+# GreenMind,08 Outubro de 2016
+#
 
-echo "v.1.2 | Autor: Erick Formaggio (erick.beltrami@gmail.com) | 03/10/2016"
+#+---------------------------------------------------------+
+#Constantes HELP e MAN
+#+---------------------------------------------------------+
 
-echo "HOST SEM WWW"
-read host
+MAN="
 
-echo "URL DO BLOG COM WWW"
-read blog
-
-mkdir -p Testes/"$host"
-
-echo "**************************************************************"
-echo "1. DIG"
-dig "$host" -t mx > Testes/"$host"/"$host"_dig.txt
-cat Testes/"$host"/"$host"_dig.txt 
-
-echo "**************************************************************"
-echo "2. WHOIS"
-whois "$host" > Testes/"$host"/"$host"_whois.txt
-cat Testes/"$host"/"$host"_whois.txt
-
-echo "**************************************************************"
-echo "3. NIKTO"
-nikto -h "$host" > Testes/"$host"/"$host"_nikto.txt
-cat Testes/"$host"/"$host"_nikto.txt
-
-echo "**************************************************************"
-echo "4. THE HARVESTER"
-theharvester -d "$host" -b google > Testes/"$host"/"$host"_tharvester.txt
-cat Testes/"$host"/"$host"_tharvester.txt
-
-echo "**************************************************************"
-echo "5. NMAP"
-nmap -A -T4 -v "$host" > Testes/"$host"/"$host"_nmap.txt
-cat Testes/"$host"/"$host"_nmap.txt
-
-echo "**************************************************************"
-echo "6. NMAP VULNERABILIDADES"
-nmap -sS -sV --script vuln "$host" -v > Testes/"$host"/"$host"_nmap-vulnerabilidades.txt
-cat Testes/"$host"/"$host"_nmap-vulnerabilidades.txt
-
-echo "**************************************************************"
-echo "7. WPSCAN"
-wpscan --url "$blog" > Testes/"$host"/"$host"_blog.txt
-cat Testes/"$host"/"$host"_blog.txt
+$HELP
+Manual completo do $(basename "$0")
+-h, --help		Comando para exibir ajuda em caso de duvidas.
+-m, --man		Manual completo sobre o programa $(basename "$0")
+-V, --version		Mostra a versão atual do programa $(basename "$0")
 
 
-echo "**************************************************************"
-echo "*                           FIM                              *"
-echo "**************************************************************"
+-s, --start		Executa o Crawler Death Proof.
+-l, --log     Veja os LOGS
+
+"
+
+HELP="
+
+Uso: $(basename "$0") [OPÇÕES]
+OPÇÕES:
+$(basename "$0") Chamo o help para Crawler Death Proof
+
+-m, --man		Manual do Programa
+-h, --help		Ajuda do Programa
+-V, --version 		Versão do Programa
+
+-s, --start		Executa o Crawler Death Proof
+-l, --log     Veja os LOGS
+
+"
+
+#+---------------------------------------------------------+
+#Funções
+#+---------------------------------------------------------+
+
+#Manual
+function man(){
+	echo -e "$MAN";
+	exit 0
+}
+
+#Help
+function help(){
+	echo -e "$HELP";
+	exit 0
+}
+
+#Version
+function version(){
+	echo -n $(basename "$0")
+	# Extrai a versão diretamente dos cabeçalhos do programa
+	grep '^# Versão ' "$0" | tail -1 | cut -d : -f 1 | tr -d \#
+	exit 0
+}
+
+#LOG
+function ver_log(){
+echo "Em desenvolvimento"
+exit 0
+}
+
+#Start
+function start(){
+
+  #Inicio Crawler Death Proof
+
+  echo "HOST SEM WWW"
+  read host
+
+  echo "URL DO BLOG COM WWW"
+  read blog
+
+  #Digite o nome para esse teste
+  echo "Digite nome para o teste"
+  read nome_teste
+  mkdir /opt/crawler-death-proof/$nome_teste && cd $nome_teste
+
+  #MSG para usuario
+  clear
+  echo "Pasta criada, iniciando projeto."
+
+  #dig
+  dig "$host" -t mx > /opt/crawler-death-proof/$nome_teste/dig.txt
+
+  #whois
+  whois "$host" > /opt/crawler-death-proof/$nome_teste/whois.txt
+
+  #Nikto
+  nikto -h "$host" > /opt/crawler-death-proof/$nome_teste/nikto.txt
+
+  #theharvester
+  theharvester -d "$host" -b google > /opt/crawler-death-proof/$nome_teste/tharvester.txt
+
+  #nmap
+  nmap -A -T4 -v "$host" > /opt/crawler-death-proof/$nome_teste/nmap.txt
+
+  nmap -sS -sV --script vuln "$host" -v > /opt/crawler-death-proof/$nome_teste/nmap-vulnerabilidades.txt
+  
+  #wpscan
+  wpscan --url "$blog" > /opt/crawler-death-proof/$nome_teste/wpscan.txt
+
+  echo "Executado com sucesso!"
+}
+
+while test -n "$1"
+do
+	case "$1" in
+
+    #Manual
+		-m | --man)
+			man
+		;;
+
+		#Ajuda
+		-h | --help)
+			help
+		;;
+
+    #Versão atual do programa
+		-V | --version)
+			version
+		;;
+
+		-s | --start)
+			start
+		;;
+
+    -l | --log)
+      ver_log
+		;;
+
+		*)
+			echo Opção inválida: $1
+			exit 1
+		;;
+	esac
+
+	# Opção $1 já processada, a fila deve andar
+	shift
+done
+
+#Caso não escolha nada chama a função HELP
+ help
