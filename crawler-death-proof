@@ -1,0 +1,51 @@
+#!/bin/sh
+
+echo "v.1.2 | Autor: Erick Formaggio (erick.beltrami@gmail.com) | 03/10/2016"
+
+echo "HOST SEM WWW"
+read host
+
+echo "URL DO BLOG COM WWW"
+read blog
+
+mkdir -p Testes/"$host"
+
+echo "**************************************************************"
+echo "1. DIG"
+dig "$host" -t mx > Testes/"$host"/"$host"_dig.txt
+cat Testes/"$host"/"$host"_dig.txt 
+
+echo "**************************************************************"
+echo "2. WHOIS"
+whois "$host" > Testes/"$host"/"$host"_whois.txt
+cat Testes/"$host"/"$host"_whois.txt
+
+echo "**************************************************************"
+echo "3. NIKTO"
+nikto -h "$host" > Testes/"$host"/"$host"_nikto.txt
+cat Testes/"$host"/"$host"_nikto.txt
+
+echo "**************************************************************"
+echo "4. THE HARVESTER"
+theharvester -d "$host" -b google > Testes/"$host"/"$host"_tharvester.txt
+cat Testes/"$host"/"$host"_tharvester.txt
+
+echo "**************************************************************"
+echo "5. NMAP"
+nmap -A -T4 -v "$host" > Testes/"$host"/"$host"_nmap.txt
+cat Testes/"$host"/"$host"_nmap.txt
+
+echo "**************************************************************"
+echo "6. NMAP VULNERABILIDADES"
+nmap -sS -sV --script vuln "$host" -v > Testes/"$host"/"$host"_nmap-vulnerabilidades.txt
+cat Testes/"$host"/"$host"_nmap-vulnerabilidades.txt
+
+echo "**************************************************************"
+echo "7. WPSCAN"
+wpscan --url "$blog" > Testes/"$host"/"$host"_blog.txt
+cat Testes/"$host"/"$host"_blog.txt
+
+
+echo "**************************************************************"
+echo "*                           FIM                              *"
+echo "**************************************************************"
